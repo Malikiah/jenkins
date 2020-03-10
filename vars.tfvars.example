@@ -1,0 +1,15 @@
+// Jenkins Variables \\
+jenkins_count = 1
+
+// DigitalOcean Variables \\
+image = "centos-8-x64"
+region = "sfo2"
+size = "s-2vcpu-4gb"
+
+// Linux Variables \\
+ssh_user = "root"
+ssh_key = "~/.ssh/id_rsa"
+
+// DNS Variables \\
+domain = "jenkins.malikiah.io"
+service-port = "8080"

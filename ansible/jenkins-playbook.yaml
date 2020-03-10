@@ -1,0 +1,43 @@
+- name: Jenkins
+  connection: ssh
+  become: yes
+  gather_facts: false
+  hosts: all
+  tasks:    
+    - name: Installing required packages
+      dnf:
+        name: 
+          - java-1.8.0-openjdk-devel
+        update_cache: true
+        state: latest
+
+    - name: Curling Jekins repo
+      shell: curl --silent --location http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo | sudo tee /etc/yum.repos.d/jenkins.repo
+      args:
+        executable: /bin/bash
+
+    - name: Adding rpm key
+      rpm_key:
+        state: present
+        key: https://jenkins-ci.org/redhat/jenkins-ci.org.key
+
+    - name: Installing required packages
+      dnf:
+        name: 
+          - jenkins
+        update_cache: true
+        state: latest
+    
+    - name: Starting & Enabling Jenkins
+      shell: systemctl start jenkins && sudo systemctl enable jenkins
+      args:
+        executable: /bin/bash
+
+    - name: Check Admin temp password
+      become: yes
+      command: /bin/cat /var/lib/jenkins/secrets/initialAdminPassword
+      register: cat 
+      changed_when: False
+
+    - name: Print SSH public key
+      debug: var=cat.stdout

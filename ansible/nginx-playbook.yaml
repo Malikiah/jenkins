@@ -1,0 +1,37 @@
+- name: nginx-reverse-proxy
+  connection: ssh
+  become: yes
+  gather_facts: false
+  hosts: all
+  tasks:    
+    - name: Installing required packages
+      dnf:
+        name: 
+          - nginx
+        update_cache: true
+        state: latest
+
+    - name: Nginx configuration file
+      template:
+        src: ./templates/nginx.conf.j2
+        dest: /etc/nginx/conf.d/{{ domain }}.conf
+    
+    - name: Allowing selinux proxy connection
+      shell: setsebool -P httpd_can_network_connect 1
+      args:
+        executable: /bin/bash
+    
+    - name : Downloading certbot
+      get_url:
+        url: https://dl.eff.org/certbot-auto
+        dest: ~/certbot-auto
+    
+    - name: Configuring Nginx with certbot
+      shell: mv certbot-auto /usr/local/bin/certbot-auto && sudo chown root /usr/local/bin/certbot-auto && sudo chmod 0755 /usr/local/bin/certbot-auto && sudo /usr/local/bin/certbot-auto -n --nginx -m damianmmccarthy@protonmail.com --agree-tos -d {{ domain }} && echo \"0 0,12 * * * root python3 -c 'import random; import time; time.sleep(random.random() * 3600)' && /usr/local/bin/certbot-auto renew -q\" | sudo tee -a /etc/crontab > /dev/null
+      args: 
+        executable: /bin/bash
+    
+    - name: Enabling Nginx
+      shell: systemctl enable nginx
+      args:
+        executable: /bin/bash

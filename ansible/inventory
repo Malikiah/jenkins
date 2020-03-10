@@ -1,0 +1,8 @@
+[all:vars]
+ansible_user = root
+ansible_ssh_private_key_file = ~/.ssh/id_rsa
+domain = jenkins.malikiah.io
+port = 8080
+
+[nodes]
+167.172.206.172
